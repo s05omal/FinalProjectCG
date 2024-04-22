@@ -15,10 +15,12 @@ var ballBounced;
 var ballGone;
 var ballX;
 var reset;
-var theta = Math.random() * (Math.PI);
+var theta = Math.random() * (Math.PI) / 2;
+var score = 0;
+var highScore = 0;
 
 var left;
-var up = true;
+var up = false;
 
 
 window.onload = function init() {
@@ -31,7 +33,7 @@ window.onload = function init() {
     paddleOffset = 0;
     ballOffset = 0.2;
     
-    if (theta < Math.PI / 2){
+    if (Math.random() > 0.5){
         left = false;
     }
     else{
@@ -46,7 +48,7 @@ window.onload = function init() {
     reset.addEventListener("click", function(event){
         ballX = (Math.random() * 2) - 1;
         ballOffset = 0.2;
-        theta = 
+        theta = Math.random() * Math.PI / 2;
 	    paddle = makePaddle(paddleOffset);
         ball = makeBall(0.03, ballX, 0.97);
         ballDropped = false;
@@ -140,10 +142,10 @@ function makePaddle(offset) {
 	return {positions:p, color:c};
 }
 
-function makeBrick(xPos, yPos) {
+function makeBrick(xPos, yPos, brickColor) {
 	var b = false;
     var p = [];
-    var c = vec4(1.0, 1.0, 1.0, 0);
+    var c = brickColor;
     p.push(vec2(0.0 + xPos, 0.0 + yPos));
     p.push(vec2(0.2 + xPos, 0.0 + yPos));
     p.push(vec2(0.2 + xPos, -0.05 + yPos));
@@ -155,7 +157,7 @@ function makeBrick(xPos, yPos) {
 
 function makeBall(r, x, y, offset) {
 	var c = vec2( x, y - offset );
-    var color = vec4(0.0, 1.0, 0.2, 1.0);
+    var color = vec4(1.0, 1.0, 1.0, 1.0);
 	var p = [];
 	p.push(c);
 	
@@ -187,13 +189,13 @@ function render() {
         up = false;
     }
     else if (!up && ball.center[1] <= -0.95){
-        up = true;
+        ballGone = true;
     }
     if (ballDropped){
-        if (up && !ballGone){
+        if (!up){
             ballOffset += 0.05 * Math.sin(theta);
         }
-        else if (!up && !ballGone){
+        else if (up && !ballGone){
             ballOffset -= 0.05 * Math.sin(theta);
         }
         if (left){
