@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+#version 300 es
+in vec4 aPosition;
+in vec4 aColor;
+
+out vec4 vColor;
+
+void
+main()
+{
+    gl_Position = aPosition;
+	vColor = aColor;
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+#version 300 es
+precision mediump float;
+
+in vec4 vColor;
+out vec4 fColor;
+
+void
+main()
+{
+    fColor = vColor;
+}
+</script>
+</script>
+
+
+<script type="text/javascript" src="initShaders.js"></script>
+<script type="text/javascript" src="MV.js"></script>
+<script type="text/javascript" src="Othello.js"></script>
+
+
+
+<body>
+<canvas id="gl-canvas" width="512" height="512">>
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+
+
+
+</body>
+<body>
+    <p>Black Chips: <span id="blackChips">0</span></p>
+    <p>White Chips: <span id="whiteChips">0</span></p>
+    </body>
+</html>
