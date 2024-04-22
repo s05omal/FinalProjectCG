@@ -18,6 +18,7 @@ var reset;
 var theta = Math.random() * (Math.PI) / 2;
 var score = 0;
 var highScore = 0;
+var bricks = [[], [], [], []];
 
 var left;
 var up = false;
@@ -59,6 +60,12 @@ window.onload = function init() {
     ballX = (Math.random() * 2) - 1;
 	paddle = makePaddle(paddleOffset);
     ball = makeBall(0.03, ballX, 0.97);
+    var extra = 0.01;
+    for (var i = 0; i < 4; i++){
+        for (var j = 0; j < 10; j++){
+
+        }
+    }
     ballDropped = false;
     ballBounced = false;
     ballGone = false;
@@ -147,8 +154,8 @@ function makeBrick(xPos, yPos, brickColor) {
     var p = [];
     var c = brickColor;
     p.push(vec2(0.0 + xPos, 0.0 + yPos));
-    p.push(vec2(0.2 + xPos, 0.0 + yPos));
-    p.push(vec2(0.2 + xPos, -0.05 + yPos));
+    p.push(vec2(0.15 + xPos, 0.0 + yPos));
+    p.push(vec2(0.15 + xPos, -0.05 + yPos));
     p.push(vec2(0.0 + xPos, -0.05 + yPos));
 	
 	
