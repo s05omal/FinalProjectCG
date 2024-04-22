@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+#version 300 es
+in vec4 aPosition;
+in vec4 aColor;
+
+out vec4 vColor;
+
+void
+main()
+{
+    gl_Position = aPosition;
+	vColor = aColor;
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+#version 300 es
+precision mediump float;
+
+in vec4 vColor;
+out vec4 fColor;
+
+void
+main()
+{
+    fColor = vColor;
+}
+</script>
+
+
+<script type="text/javascript" src="initShaders.js"></script>
+<script type="text/javascript" src="MV.js"></script>
+<script type="text/javascript" src="Breakout.js"></script>
+
+<body>
+    <form id="myForm">
+        <label>
+            <input type="button" id="reset" name="paddle_size" value="Reset"/>
+        </label>
+        <label>
+            <input type="radio" id="small" name="paddle_size" value="small" />Small
+        </label>
+        <label>
+            <input type="radio" id="medium" name="paddle_size" value="medium" />Medium
+        </label>
+        <label>
+            <input type="radio" id="large" name="paddle_size" value="large" />Large
+        </label>
+    </form>
+    <canvas id="gl-canvas" width="700" height="700">>
+        Oops ... your browser doesn't support the HTML5 canvas element
+    </canvas>
+
+
+</body>
+
+</html>
