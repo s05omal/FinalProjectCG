@@ -18,7 +18,7 @@ var reset;
 var theta = Math.random() * (Math.PI) / 2;
 var score = 0;
 var highScore = 0;
-var bricks = [[], [], [], []];
+var bricks = [];
 
 var left;
 var up = false;
@@ -51,7 +51,7 @@ window.onload = function init() {
         ballOffset = 0.2;
         theta = Math.random() * Math.PI / 2;
 	    paddle = makePaddle(paddleOffset);
-        ball = makeBall(0.03, ballX, 0.97);
+        ball = makeBall(0.03, ballX, 0.0, 0.4);
         ballDropped = false;
         ballBounced = false;
         ballGone = false;
@@ -59,12 +59,15 @@ window.onload = function init() {
 
     ballX = (Math.random() * 2) - 1;
 	paddle = makePaddle(paddleOffset);
-    ball = makeBall(0.03, ballX, 0.97);
+    ball = makeBall(0.03, ballX, 0.0, 0.4);
     var extra = 0.01;
+    var temp = [];
     for (var i = 0; i < 4; i++){
+        temp = [];
         for (var j = 0; j < 10; j++){
-
+            temp.push(makeBrick(-1.0 + (0.2 * j) + 0.02, 0.98 - (0.10 * i) - 0.2, vec4(1.0, 1.0, 1.0, 1.0)));
         }
+        bricks.push(temp);
     }
     ballDropped = false;
     ballBounced = false;
@@ -87,9 +90,14 @@ window.onload = function init() {
 
     vBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, 8*paddle.positions.length + 8*ball.positions.length, gl.STATIC_DRAW );
+    gl.bufferData( gl.ARRAY_BUFFER, 8*10000, gl.STATIC_DRAW );
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, flatten(paddle.positions));
     gl.bufferSubData(gl.ARRAY_BUFFER, 8*paddle.positions.length, flatten(ball.positions));
+    for (var i = 0; i < 4; i++){
+        for (var j = 0; j < 10; j++){
+            gl.bufferSubData(gl.ARRAY_BUFFER, 8*(paddle.positions.length + ball.positions.length + (i * 10 * 4) + (j * 4)), flatten(bricks[i][j].positions));
+        }
+    }
 
     // Associate out shader variable with our data buffer
 
@@ -101,13 +109,21 @@ window.onload = function init() {
 	// Add color
 	cBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, 16*paddle.positions.length + 16*ball.positions.length, gl.STATIC_DRAW );
+    gl.bufferData( gl.ARRAY_BUFFER, 16*10000, gl.STATIC_DRAW );
     //gl.bufferData( gl.ARRAY_BUFFER, flatten(paddle.colors), gl.STATIC_DRAW );
     for (var ii = 0; ii < paddle.positions.length; ii++)
 		gl.bufferSubData(gl.ARRAY_BUFFER, 16*ii, flatten(paddle.color));
 
     for (var ii = paddle.positions.length; ii < paddle.positions.length + ball.positions.length; ii++)
         gl.bufferSubData(gl.ARRAY_BUFFER, 16*ii, flatten(ball.color));
+
+    for (var i = 0; i < 4; i++){
+        for (var j = 0; j < 10; j++){
+            for (var k = 0; k < 4; k++){
+                gl.bufferSubData(gl.ARRAY_BUFFER, 16*(paddle.positions.length + ball.positions.length + (i * 10 * 4) + (j * 4) + k), flatten(bricks[i][j].color));
+            }
+        }
+    }
 
     var colorLoc = gl.getAttribLocation(program, "aColor");
     gl.vertexAttribPointer(colorLoc, 4, gl.FLOAT, false, 0, 0);
@@ -154,9 +170,9 @@ function makeBrick(xPos, yPos, brickColor) {
     var p = [];
     var c = brickColor;
     p.push(vec2(0.0 + xPos, 0.0 + yPos));
-    p.push(vec2(0.15 + xPos, 0.0 + yPos));
-    p.push(vec2(0.15 + xPos, -0.05 + yPos));
-    p.push(vec2(0.0 + xPos, -0.05 + yPos));
+    p.push(vec2(0.16 + xPos, 0.0 + yPos));
+    p.push(vec2(0.16 + xPos, -0.06 + yPos));
+    p.push(vec2(0.0 + xPos, -0.06 + yPos));
 	
 	
 	return {positions:p, color:c, broken:b};
@@ -198,6 +214,33 @@ function render() {
     else if (!up && ball.center[1] <= -0.95){
         ballGone = true;
     }
+    gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
+    for (var i = 0; i < 4; i++){
+        for (var j = 0; j < 10; j++){
+            if (!bricks[i][j].broken && up && (ball.center[1] + 0.03) > bricks[i][j].positions[2][1] && (ball.center[1] - 0.03) < bricks[i][j].positions[1][1]
+            && (ball.center[0] + 0.03) > bricks[i][j].positions[0][0] && (ball.center[0]- 0.03) < bricks[i][j].positions[1][0]){
+                score += (i + 1) * 1000;
+                bricks[i][j].color = vec4(0.0, 0.0, 0.0, 1.0);
+                bricks[i][j].broken = true;
+                for (var k = 0; k < 4; k++){
+                    gl.bufferSubData(gl.ARRAY_BUFFER, 16*(paddle.positions.length + ball.positions.length + (i * 10 * 4) + (j * 4) + k), flatten(bricks[i][j].color));
+                }
+                up = false;
+            }
+            else if (!bricks[i][j].broken && !up && ball.center[1] < bricks[i][j].positions[2][1] && ball.center[1] > bricks[i][j].positions[1][1]
+                && ball.center[0] > bricks[i][j].positions[0][0] && ball.center[0] < bricks[i][j].positions[1][0]){
+                    score += (i + 1) * 1000;
+                    bricks[i][j].color = vec4(0.0, 0.0, 0.0, 1.0);
+                    bricks[i][j].broken = true;
+                    for (var k = 0; k < 4; k++){
+                        gl.bufferSubData(gl.ARRAY_BUFFER, 16*(paddle.positions.length + ball.positions.length + (i * 10 * 4) + (j * 4) + k), flatten(bricks[i][j].color));
+                    }
+                up = true;
+            }
+            
+            
+        }
+    }
     if (ballDropped){
         if (!up){
             ballOffset += 0.05 * Math.sin(theta);
@@ -225,6 +268,14 @@ function render() {
 
     
     gl.bufferSubData(gl.ARRAY_BUFFER, 8*paddle.positions.length, flatten(ball.positions));
+    
+    
+    for (var i = 0; i < 4; i++){
+        for (var j = 0; j < 10; j++){
+            gl.drawArrays(gl.TRIANGLE_FAN, paddle.positions.length + ball.positions.length + i*40 + j*4, 4);
+        }
+    }
+
     gl.drawArrays(gl.TRIANGLE_FAN, paddle.positions.length, ball.positions.length);
     
 
