@@ -48,18 +48,18 @@ window.onload = function init() {
     });
     reset.addEventListener("click", function(event){
         ballX = (Math.random() * 2) - 1;
-        ballOffset = 0.2;
+        ball = makeBall(0.03, ballX, 0.62, ballOffset);
+        ballOffset = 0.35;
         theta = Math.random() * Math.PI / 2;
 	    paddle = makePaddle(paddleOffset);
-        ball = makeBall(0.03, ballX, 0.0, 0.4);
         ballDropped = false;
         ballBounced = false;
         ballGone = false;
     });
-
+    ballOffset = 0.35;
     ballX = (Math.random() * 2) - 1;
 	paddle = makePaddle(paddleOffset);
-    ball = makeBall(0.03, ballX, 0.0, 0.4);
+    ball = makeBall(0.03, ballX, 0.62, ballOffset);
     var extra = 0.01;
     var temp = [];
     for (var i = 0; i < 4; i++){
@@ -208,60 +208,86 @@ function render() {
         left = false;
     }
 
-    if (up && ball.center[1] >= 0.95){
+    if (up && ball.center[1] >= 0.95 + 0.35){
         up = false;
     }
     else if (!up && ball.center[1] <= -0.95){
         ballGone = true;
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
+    var brickBroken = false;
     for (var i = 0; i < 4; i++){
+        if (brickBroken){
+            break;
+        }
         for (var j = 0; j < 10; j++){
             if (!bricks[i][j].broken && up && (ball.center[1] + 0.03) > bricks[i][j].positions[2][1] && (ball.center[1] - 0.03) < bricks[i][j].positions[1][1]
             && (ball.center[0] + 0.03) > bricks[i][j].positions[0][0] && (ball.center[0]- 0.03) < bricks[i][j].positions[1][0]){
                 score += (i + 1) * 1000;
-                bricks[i][j].color = vec4(0.0, 0.0, 0.0, 1.0);
                 bricks[i][j].broken = true;
                 for (var k = 0; k < 4; k++){
-                    gl.bufferSubData(gl.ARRAY_BUFFER, 16*(paddle.positions.length + ball.positions.length + (i * 10 * 4) + (j * 4) + k), flatten(bricks[i][j].color));
+                    gl.bufferSubData(gl.ARRAY_BUFFER, 16*(paddle.positions.length + ball.positions.length + (i * 10 * 4) + (j * 4) + k), flatten(vec4(0.0, 0.0, 0.0, 1.0)));
                 }
                 up = false;
+                brickBroken = true;
+                break;
             }
-            else if (!bricks[i][j].broken && !up && ball.center[1] < bricks[i][j].positions[2][1] && ball.center[1] > bricks[i][j].positions[1][1]
+            else if (!bricks[i][j].broken && !up && (ball.center[1] + 0.03) > bricks[i][j].positions[2][1] && (ball.center[1] - 0.03) < bricks[i][j].positions[1][1]
                 && ball.center[0] > bricks[i][j].positions[0][0] && ball.center[0] < bricks[i][j].positions[1][0]){
                     score += (i + 1) * 1000;
-                    bricks[i][j].color = vec4(0.0, 0.0, 0.0, 1.0);
                     bricks[i][j].broken = true;
                     for (var k = 0; k < 4; k++){
-                        gl.bufferSubData(gl.ARRAY_BUFFER, 16*(paddle.positions.length + ball.positions.length + (i * 10 * 4) + (j * 4) + k), flatten(bricks[i][j].color));
+                        gl.bufferSubData(gl.ARRAY_BUFFER, 16*(paddle.positions.length + ball.positions.length + (i * 10 * 4) + (j * 4) + k), flatten(vec4(0.0, 0.0, 0.0, 1.0)));
                     }
                 up = true;
+                brickBroken = true;
+                break;
             }
-            
-            
+            if (!bricks[i][j].broken && left && (ball.center[0] - 0.03) < bricks[i][j].positions[1][0] && (ball.center[0] + 0.03) < bricks[i][j].positions[0][0]
+            && (ball.center[1] + 0.03) > bricks[i][j].positions[2][1] && (ball.center[1]- 0.03) < bricks[i][j].positions[1][1]){
+                score += (i + 1) * 1000;
+                bricks[i][j].broken = true;
+                for (var k = 0; k < 4; k++){
+                    gl.bufferSubData(gl.ARRAY_BUFFER, 16*(paddle.positions.length + ball.positions.length + (i * 10 * 4) + (j * 4) + k), flatten(vec4(0.0, 0.0, 0.0, 1.0)));
+                }
+                left = false;
+                brickBroken = true;
+                break;
+            }
+            else if (!bricks[i][j].broken && !left && (ball.center[0] - 0.03) < bricks[i][j].positions[1][0] && (ball.center[0] + 0.03) < bricks[i][j].positions[0][0]
+            && (ball.center[1] + 0.03) > bricks[i][j].positions[2][1] && (ball.center[1]- 0.03) < bricks[i][j].positions[1][1]){
+                    score += (i + 1) * 1000;
+                    bricks[i][j].broken = true;
+                    for (var k = 0; k < 4; k++){
+                        gl.bufferSubData(gl.ARRAY_BUFFER, 16*(paddle.positions.length + ball.positions.length + (i * 10 * 4) + (j * 4) + k), flatten(vec4(0.0, 0.0, 0.0, 1.0)));
+                    }
+                left = true;
+                brickBroken = true;
+                break;
+            }
         }
     }
     if (ballDropped){
         if (!up){
-            ballOffset += 0.05 * Math.sin(theta);
+            ballOffset += 0.04 * Math.sin(theta);
         }
         else if (up && !ballGone){
-            ballOffset -= 0.05 * Math.sin(theta);
+            ballOffset -= 0.04 * Math.sin(theta);
         }
         if (left){
-            ballX -= 0.05 * Math.cos(theta);
+            ballX -= 0.04 * Math.cos(theta);
         }
         else{
-            ballX += 0.05 * Math.cos(theta);
+            ballX += 0.04 * Math.cos(theta);
         }
     }
-    if ((ballOffset >= 0.97 + 0.92 && ballX > paddle.positions[0][0] && ballX < paddle.positions[1][0])|| ballOffset < 0 ){
+    if ((ballOffset >= 0.62 + 0.92 && ballX > paddle.positions[0][0] && ballX < paddle.positions[1][0])|| ballOffset < 0 ){
         if (ballOffset > 2){
             ballGone = true;
         }
         up = !up;
     }
-    ball = makeBall(0.03, ballX, 0.97, ballOffset);
+    ball = makeBall(0.03, ballX, 0.62, ballOffset);
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, flatten(paddle.positions));
     gl.drawArrays( gl.TRIANGLE_FAN, 0, paddle.positions.length);
