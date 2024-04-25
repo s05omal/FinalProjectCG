@@ -36,10 +36,18 @@ main()
 <script type="text/javascript" src="Breakout.js"></script>
 
 <body>
+	<p>Score: <span id="score">0</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;High Score: <span id="highScore">0</span></p>
+    <p></p>
+	<p>Lives: <span id="lives">3</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="gameOver"> </span></p>
+	<canvas id="gl-canvas" width="700" height="700">>
+        Oops ... your browser doesn't support the HTML5 canvas element
+    </canvas>
     <form id="myForm">
         <label>
             <input type="button" id="reset" name="paddle_size" value="Reset"/>
         </label>
+		<label>
+			&nbsp;&nbsp;Paddle Size:&nbsp;
         <label>
             <input type="radio" id="small" name="paddle_size" value="small" />Small
         </label>
@@ -50,9 +58,7 @@ main()
             <input type="radio" id="large" name="paddle_size" value="large" />Large
         </label>
     </form>
-    <canvas id="gl-canvas" width="700" height="700">>
-        Oops ... your browser doesn't support the HTML5 canvas element
-    </canvas>
+    
 
 
 </body>
