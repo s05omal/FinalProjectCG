@@ -266,21 +266,102 @@ function render() {
         ballGone = true;
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
+	var brickBroken = false;
     for (var i = 0; i < 4; i++){
+		if (brickBroken){
+			brickBroken = false;
+			break;
+		}
         for (var j = 0; j < 10; j++){
             if (bricks[i][j].broken){
 				continue;
 			}
-			if (up && (ball.center[1] + 0.06) >= bricks[i][j].positions[2][1] 
-            && (ball.center[0]) > bricks[i][j].positions[0][0] && (ball.center[0]) < bricks[i][j].positions[1][0]){
-                score += (4 - i) * 1000;
+			if (up && (ball.center[1] + 0.03) > bricks[i][j].positions[2][1] && (ball.center[1] + 0.03) < bricks[i][j].positions[2][1] + 0.03
+            && (ball.center[0] + 0.03) > bricks[i][j].positions[0][0] && (ball.center[0] - 0.03) < bricks[i][j].positions[1][0]){
+				if (document.getElementById("small").checked){
+					score += (4 - i) * 1500;
+				}
+				else if (document.getElementById("medium").checked){
+					score += (4 - i) * 1250;
+				}
+				else {
+					score += (4 - i) * 1000;
+				}
                 bricks[i][j].broken = true;
                 for (var k = 0; k < 4; k++){
                     gl.bufferSubData(gl.ARRAY_BUFFER, 16*(paddle.positions.length + ball.positions.length + (i * 10 * 4) + (j * 4) + k), flatten(vec4(0.0, 0.0, 0.0, 1.0)));
                 }
 				updateScore();
                 up = false;
+				brickBroken = true;
+				document.getElementById("myAudio").play();
+				break;
             }
+			else if (!up && (ball.center[1] - 0.03) < bricks[i][j].positions[1][1] && (ball.center[1] - 0.03) > bricks[i][j].positions[1][1] - 0.03
+            && (ball.center[0] + 0.03) > bricks[i][j].positions[0][0] && (ball.center[0] - 0.03) < bricks[i][j].positions[1][0]){
+                if (document.getElementById("small").checked){
+					score += (4 - i) * 1500;
+				}
+				else if (document.getElementById("medium").checked){
+					score += (4 - i) * 1250;
+				}
+				else {
+					score += (4 - i) * 1000;
+				}
+                bricks[i][j].broken = true;
+                for (var k = 0; k < 4; k++){
+                    gl.bufferSubData(gl.ARRAY_BUFFER, 16*(paddle.positions.length + ball.positions.length + (i * 10 * 4) + (j * 4) + k), flatten(vec4(0.0, 0.0, 0.0, 1.0)));
+                }
+				updateScore();
+                up = true;
+				brickBroken = true;
+				document.getElementById("myAudio").play();
+				break;
+            }
+			
+			if (left && (ball.center[0] - 0.03) < bricks[i][j].positions[1][0] && (ball.center[0] - 0.03) > bricks[i][j].positions[1][0] - 0.03
+			&& ball.center[1] + 0.03 > bricks[i][j].positions[2][1] && ball.center[1] - 0.03 < bricks[i][j].positions[1][1]){
+				if (document.getElementById("small").checked){
+					score += (4 - i) * 1500;
+				}
+				else if (document.getElementById("medium").checked){
+					score += (4 - i) * 1250;
+				}
+				else {
+					score += (4 - i) * 1000;
+				}
+                bricks[i][j].broken = true;
+                for (var k = 0; k < 4; k++){
+                    gl.bufferSubData(gl.ARRAY_BUFFER, 16*(paddle.positions.length + ball.positions.length + (i * 10 * 4) + (j * 4) + k), flatten(vec4(0.0, 0.0, 0.0, 1.0)));
+                }
+				updateScore();
+                left = false;
+				brickBroken = true;
+				document.getElementById("myAudio").play();
+				break;
+			}
+			else if (!left && (ball.center[0] + 0.03) > bricks[i][j].positions[0][0] && (ball.center[0] + 0.03) < bricks[i][j].positions[0][0] + 0.03
+			&& ball.center[1] + 0.03 > bricks[i][j].positions[2][1] && ball.center[1] - 0.03 < bricks[i][j].positions[1][1]){
+				if (document.getElementById("small").checked){
+					score += (4 - i) * 1500;
+				}
+				else if (document.getElementById("medium").checked){
+					score += (4 - i) * 1250;
+				}
+				else {
+					score += (4 - i) * 1000;
+				}
+                bricks[i][j].broken = true;
+                for (var k = 0; k < 4; k++){
+                    gl.bufferSubData(gl.ARRAY_BUFFER, 16*(paddle.positions.length + ball.positions.length + (i * 10 * 4) + (j * 4) + k), flatten(vec4(0.0, 0.0, 0.0, 1.0)));
+                }
+				updateScore();
+                left = true;
+				brickBroken = true;
+				document.getElementById("myAudio").play();
+				break;
+			}
+			
             
         }
     }
@@ -290,32 +371,32 @@ function render() {
 	}
     if (ballDropped && !ballGone){
         if (up){
-            ballY += 0.04 * Math.sin(theta);
+            ballY += 0.033 * Math.sin(theta);
         }
         else if (!up){
-            ballY -= 0.04 * Math.sin(theta);
+            ballY -= 0.033 * Math.sin(theta);
         }
         if (left){
-            ballX -= 0.04 * Math.cos(theta);
+            ballX -= 0.033 * Math.cos(theta);
         }
         else{
-            ballX += 0.04 * Math.cos(theta);
+            ballX += 0.033 * Math.cos(theta);
         }
     }
     if (ballY <= -0.92 && ballX > paddle.positions[0][0] && ballX < paddle.positions[1][0]){
-        if (ballY < -1.1){
+        if (ballY < -0.95){
             ballGone = true;
         }
 		else{
 			if (ballX > (paddle.positions[0][0] + paddle.positions[1][0]) / 2 + 0.05){
 				if (left){
 					if (theta + 0.05 < Math.PI - 0.05){
-						theta += 0.05;
+						theta -= 0.05;
 					}
 				}
 				else{
 					if (theta - 0.05 > 0.05){
-						theta -= 0.05;
+						theta += 0.05;
 					}
 				}
 			}
